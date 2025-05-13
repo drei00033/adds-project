@@ -1,5 +1,6 @@
 package ads.project;
 
+import extralng.PaymentCRUD;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
@@ -16,51 +17,7 @@ public class PaymentTable extends JPanel {
         headerLabel.setForeground(new Color(75, 83, 32));
         headerPanel.add(headerLabel);
         add(headerPanel, BorderLayout.NORTH);
-        //Action Panel
-        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING, 10, 10));
-        JButton add = new JButton("Add");
-        JButton update = new JButton("Update");
-        JButton delete = new JButton("Delete");
         
-        add.addActionListener(e -> {
-            String customerId = JOptionPane.showInputDialog("Enter Customer ID:");
-            String amount = JOptionPane.showInputDialog("Enter Amount:");
-            String method = JOptionPane.showInputDialog("Enter Payment Method:");
-            String date = JOptionPane.showInputDialog("Enter Payment Date (YYYY-MM-DD):");
-            String fee = JOptionPane.showInputDialog("Enter Reservation Fee:");
-            PaymentCRUD.addPayment(customerId, amount, method, date, fee);
-         
-        });
-
-        update.addActionListener(e -> {
-            String id = JOptionPane.showInputDialog("Enter Payment ID to Update:");
-            String customerId = JOptionPane.showInputDialog("Enter New Customer ID:");
-            String amount = JOptionPane.showInputDialog("Enter New Amount:");
-            String method = JOptionPane.showInputDialog("Enter New Payment Method:");
-            String date = JOptionPane.showInputDialog("Enter New Payment Date (YYYY-MM-DD):");
-            String fee = JOptionPane.showInputDialog("Enter New Reservation Fee:");
-            PaymentCRUD.updatePayment(id, customerId, amount, method, date, fee);
-      
-        });
-
-        delete.addActionListener(e -> {
-            String id = JOptionPane.showInputDialog("Enter Payment ID to Delete:");
-            PaymentCRUD.deletePayment(id);
-          
-        });
-
-        
-        
-        actionPanel.add(add);
-        actionPanel.add(update);
-        actionPanel.add(delete);
-        
-        for (JButton button : new JButton[]{add, update, delete}) {
-                button.setFont(new Font("Arial", Font.BOLD, 16));
-                button.setFocusPainted(false);
-
-                actionPanel.add(button);
-        }
         //Main Panel 
         JPanel contentPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -70,7 +27,7 @@ public class PaymentTable extends JPanel {
         gbc.weighty = 1.0;
 
         //Table setup
-        String[] columnNames = { "Payment ID", "Customer ID", "Amount", "Method", "Date" };
+        String[] columnNames = { "Payment ID", "Payment Method", "Payment Date", "Reservation Fee", "Amount" };
         String[][] data = fetchPaymentData();
         JTable paymentTable = new JTable(data, columnNames);
         paymentTable.setRowHeight(25);
@@ -90,7 +47,6 @@ public class PaymentTable extends JPanel {
         contentPanel.add(scrollPane, gbc);
 
         add(contentPanel, BorderLayout.CENTER);
-        add(actionPanel, BorderLayout.SOUTH);
     }
 
     // Fetch data from the database

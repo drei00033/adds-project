@@ -14,8 +14,7 @@ public class AdminDashboard {
             frame.setSize(1200, 700);
             frame.setLocationRelativeTo(null);
             frame.setLayout(new BorderLayout());
-
-
+            
             // Sidebar
             JPanel sidebar = new JPanel();
             sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
@@ -23,7 +22,7 @@ public class AdminDashboard {
             sidebar.setPreferredSize(new Dimension(250, frame.getHeight()));
 
             // sidebar buttons
-            String[] buttonNames = {"Customers", "Reservations", "Payments", "Package", "Room", "Utility", "Reports"};
+            String[] buttonNames = {"Customers", "Reservations", "Payments", "Room Order", "Utility Order", "Package", "Room", "Utility", "Reports"};
             
            ;
 
@@ -75,6 +74,8 @@ public class AdminDashboard {
             CustomerTable customerPanel = new CustomerTable();
             ReservationTable reservationPanel = new ReservationTable();
             PaymentTable paymentsPanel = new PaymentTable();
+            RoomOrderTable roomOrderPanel = new RoomOrderTable();
+            UtilityOrderTable utilityOrderPanel = new UtilityOrderTable();
             PackageTable packagePanel = new PackageTable();
             RoomTable roomPanel = new RoomTable();
             UtilityTable utilityPanel = new UtilityTable();
@@ -85,6 +86,9 @@ public class AdminDashboard {
             cardPanel.add(customerPanel, "Customers");
             cardPanel.add(reservationPanel, "Reservations");
             cardPanel.add(paymentsPanel, "Payments");
+            cardPanel.add(roomOrderPanel, "Room Order");
+            cardPanel.add(utilityOrderPanel, "Utility Order");
+            
             cardPanel.add(packagePanel, "Package");
             cardPanel.add(roomPanel, "Room");
             cardPanel.add(utilityPanel, "Utility");

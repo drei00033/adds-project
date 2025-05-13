@@ -17,52 +17,7 @@ public class CustomerTable extends JPanel {
         headerPanel.add(headerLabel);
         add(headerPanel, BorderLayout.NORTH);
         
-        //Action Panel 
-        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING, 10, 10));
-        JButton add = new JButton("Add");
-        JButton update = new JButton("Update");
-        JButton delete = new JButton("Delete");
         
-       
-        
-        // CRUD Actions
-        add.addActionListener(e -> {
-            String lastName = JOptionPane.showInputDialog("Enter Last Name:");
-            String firstName = JOptionPane.showInputDialog("Enter First Name:");
-            String middleName = JOptionPane.showInputDialog("Enter Middle Name:");
-            String contact = JOptionPane.showInputDialog("Enter Contact No:");
-            String email = JOptionPane.showInputDialog("Enter Email:");
-            CustomerCRUD.addCustomer(lastName, firstName, middleName, contact, email);
-
-        });
-
-        update.addActionListener(e -> {
-            String id = JOptionPane.showInputDialog("Enter Customer ID to Update:");
-            String lastName = JOptionPane.showInputDialog("Enter New Last Name:");
-            String firstName = JOptionPane.showInputDialog("Enter New First Name:");
-            String middleName = JOptionPane.showInputDialog("Enter New Middle Name:");
-            String contact = JOptionPane.showInputDialog("Enter New Contact No:");
-            String email = JOptionPane.showInputDialog("Enter New Email:");
-            CustomerCRUD.updateCustomer(id, lastName, firstName, middleName, contact, email);
-
-        });
-
-        delete.addActionListener(e -> {
-            String id = JOptionPane.showInputDialog("Enter Customer ID to Delete:");
-            CustomerCRUD.deleteCustomer(id);
-
-        });
-        
-        actionPanel.add(add);
-        actionPanel.add(update);
-        actionPanel.add(delete);
-        
-        for (JButton button : new JButton[]{add, update, delete}) {
-                button.setFont(new Font("Arial", Font.BOLD, 16));
-                button.setFocusPainted(false);
-
-                actionPanel.add(button);
-        }
         //Main panel 
         JPanel contentPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -91,7 +46,6 @@ public class CustomerTable extends JPanel {
         contentPanel.add(scrollPane, gbc);
         
         add(contentPanel, BorderLayout.CENTER);
-        add(actionPanel, BorderLayout.SOUTH);
     }
 
     //Fetch data from the database

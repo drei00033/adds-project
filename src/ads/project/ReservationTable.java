@@ -17,53 +17,7 @@ public class ReservationTable extends JPanel {
         headerPanel.add(headerLabel);
         add(headerPanel, BorderLayout.NORTH);
         
-        //Action Panel
-        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING, 10, 10));
-        JButton add = new JButton("Add");
-        JButton update = new JButton("Update");
-        JButton delete = new JButton("Delete");
         
-        add.addActionListener(e -> {
-            String checkIn = JOptionPane.showInputDialog("Enter Check-In Date (YYYY-MM-DD):");
-            String checkOut = JOptionPane.showInputDialog("Enter Check-Out Date (YYYY-MM-DD):");
-            String status = JOptionPane.showInputDialog("Enter Reservation Status:");
-            String customerId = JOptionPane.showInputDialog("Enter Customer ID:");
-            String packageCode = JOptionPane.showInputDialog("Enter Package Code:");
-            String paymentId = JOptionPane.showInputDialog("Enter Payment ID:");
-            ReservationCRUD.addReservation(checkIn, checkOut, status, customerId, packageCode, paymentId);
-           
-        });
-
-        update.addActionListener(e -> {
-            String reservationNo = JOptionPane.showInputDialog("Enter Reservation Number to Update:");
-            String checkIn = JOptionPane.showInputDialog("Enter New Check-In Date (YYYY-MM-DD):");
-            String checkOut = JOptionPane.showInputDialog("Enter New Check-Out Date (YYYY-MM-DD):");
-            String status = JOptionPane.showInputDialog("Enter New Reservation Status:");
-            String customerId = JOptionPane.showInputDialog("Enter New Customer ID:");
-            String packageCode = JOptionPane.showInputDialog("Enter New Package Code:");
-            String paymentId = JOptionPane.showInputDialog("Enter New Payment ID:");
-            ReservationCRUD.updateReservation(reservationNo, checkIn, checkOut, status, customerId, packageCode, paymentId);
-           
-        });
-
-        delete.addActionListener(e -> {
-            String reservationNo = JOptionPane.showInputDialog("Enter Reservation Number to Delete:");
-            ReservationCRUD.deleteReservation(reservationNo);
-           
-        });
-
-        
-        
-        actionPanel.add(add);
-        actionPanel.add(update);
-        actionPanel.add(delete);
-        
-        for (JButton button : new JButton[]{add, update, delete}) {
-                button.setFont(new Font("Arial", Font.BOLD, 16));
-                button.setFocusPainted(false);
-
-                actionPanel.add(button);
-        }
         //Main panel 
         JPanel contentPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -98,7 +52,6 @@ public class ReservationTable extends JPanel {
         contentPanel.add(scrollPane, gbc);
         
         add(contentPanel, BorderLayout.CENTER);
-        add(actionPanel, BorderLayout.SOUTH);
     }
 
     //Fetch data from the database
