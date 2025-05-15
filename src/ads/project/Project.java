@@ -79,7 +79,7 @@ public class Project extends JFrame {
         String password = new String(passwordField.getPassword());
 
         try {
-            Connection conn = DriverManager.getConnection("jdbc:sqlserver://localhost:1433;databaseName=reservation;encrypt=true;trustServerCertificate=true;integratedSecurity=true;");
+            Connection conn = DriverManager.getConnection("jdbc:sqlserver://localhost:1433;databaseName=SYSTEM;encrypt=true;trustServerCertificate=true;integratedSecurity=true;");
             String query = "SELECT * FROM ADMIN_DETAILS WHERE adminUserName = ? AND adminPassword = ?";
             PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt.setString(1, username);

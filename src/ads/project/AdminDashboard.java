@@ -1,14 +1,14 @@
 package ads.project;
 
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
 
-public class AdminDashboard {
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
+public class AdminDashboard extends JFrame {
+    
+    public AdminDashboard () {
             JFrame frame = new JFrame("Admin Dashboard - Luz Ville Resort");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(1200, 700);
@@ -22,7 +22,7 @@ public class AdminDashboard {
             sidebar.setPreferredSize(new Dimension(250, frame.getHeight()));
 
             // sidebar buttons
-            String[] buttonNames = {"Customers", "Reservations", "Payments", "Room Order", "Utility Order", "Package", "Room", "Utility", "Reports"};
+            String[] buttonNames = {"Customers", "Reservations", "Payments", "Room Order", "Utility Order", "Package", "Room", "Utility", "Summary"};
             
            ;
 
@@ -92,7 +92,7 @@ public class AdminDashboard {
             cardPanel.add(packagePanel, "Package");
             cardPanel.add(roomPanel, "Room");
             cardPanel.add(utilityPanel, "Utility");
-            cardPanel.add(reportsPanel, "Reports");
+            cardPanel.add(reportsPanel, "Summary");
             
 
             // ActionListeners 
@@ -110,12 +110,7 @@ public class AdminDashboard {
             mainPanel.add(cardPanel, BorderLayout.CENTER);
             frame.add(sidebar, BorderLayout.WEST);
             frame.add(mainPanel, BorderLayout.CENTER);
-            frame.setVisible(true);
-        });
-    }
-
-    void setVisible(boolean b) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+            frame.setVisible(true);    
     }
 }
 

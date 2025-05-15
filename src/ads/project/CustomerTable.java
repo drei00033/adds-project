@@ -1,37 +1,48 @@
 package ads.project;
 
 import javax.swing.*;
+import javax.swing.table.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.sql.*;
 
 public class CustomerTable extends JPanel {
+    private JTable customerTable;
+    private DefaultTableModel tableModel;
+    private TableRowSorter<DefaultTableModel> rowSorter;
+    private JTextField searchField;
 
     public CustomerTable() {
         setLayout(new BorderLayout());
 
-        // Header Panel
-        JPanel headerPanel = new JPanel();
-        JLabel headerLabel = new JLabel("Customer Reservations", SwingConstants.CENTER);
+        // Top Panel (vertical layout)
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+
+        // Header Label
+        JLabel headerLabel = new JLabel("Customer Reservations");
         headerLabel.setFont(new Font("Arial", Font.BOLD, 28));
         headerLabel.setForeground(new Color(75, 83, 32));
-        headerPanel.add(headerLabel);
-        add(headerPanel, BorderLayout.NORTH);
+        headerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        headerLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0)); // spacing
+        topPanel.add(headerLabel);
 
-        // Main panel
-        JPanel contentPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(15, 15, 15, 15);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
+        // Search Panel (Top-Left)
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JLabel searchLabel = new JLabel("Search: ");
+        searchField = new JTextField(20);
+        searchPanel.add(searchLabel);
+        searchPanel.add(searchField);
+        topPanel.add(searchPanel);
+
+        add(topPanel, BorderLayout.NORTH);
 
         // Table setup
         String[] columnNames = {"Customer Name", "Email", "Contact No", "Reservation Period"};
         String[][] data = fetchCustomerData();
-        JTable customerTable = new JTable(data, columnNames);
-        customerTable.setRowHeight(25);
+        tableModel = new DefaultTableModel(data, columnNames);
+        customerTable = new JTable(tableModel);
+        customerTable.setRowHeight(20);
         customerTable.setFont(new Font("Arial", Font.PLAIN, 16));
         customerTable.setBackground(new Color(220, 220, 220));
         customerTable.setForeground(new Color(50, 50, 50));
@@ -40,14 +51,52 @@ public class CustomerTable extends JPanel {
         customerTable.setSelectionBackground(new Color(150, 200, 150));
         customerTable.setSelectionForeground(Color.BLACK);
 
-        // Positioning
-        JScrollPane scrollPane = new JScrollPane(customerTable);
-        contentPanel.add(scrollPane, gbc);
+        // Enable row sorting and filtering
+        rowSorter = new TableRowSorter<>(tableModel);
+        customerTable.setRowSorter(rowSorter);
 
-        add(contentPanel, BorderLayout.CENTER);
+        // Search field listener
+        searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                filterTable(searchField.getText());
+            }
+
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                filterTable(searchField.getText());
+            }
+
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                filterTable(searchField.getText());
+            }
+
+            private void filterTable(String text) {
+                if (text.trim().isEmpty()) {
+                    rowSorter.setRowFilter(null);
+                } else {
+                    rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, 0)); // Filter by customer name
+                }
+            }
+        });
+
+        // Scroll pane
+        JScrollPane scrollPane = new JScrollPane(customerTable);
+        add(scrollPane, BorderLayout.CENTER);
+
+        // Refresh button (Bottom-Right)
+        JButton refreshButton = new JButton("Refresh");
+        refreshButton.addActionListener(e -> refreshTable());
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.add(refreshButton);
+        add(bottomPanel, BorderLayout.SOUTH);
     }
 
-    // Fetch data from the database
+    private void refreshTable() {
+        String[][] newData = fetchCustomerData();
+        tableModel.setDataVector(newData, new String[]{"Customer Name", "Email", "Contact No", "Reservation Period"});
+        rowSorter.setModel(tableModel); // Reset sorter to new data
+    }
+
     private String[][] fetchCustomerData() {
         String[][] data = new String[0][4];
         try {
@@ -70,6 +119,7 @@ public class CustomerTable extends JPanel {
                 data[i][3] = rs.getString("ReservationPeriod");
                 i++;
             }
+
             conn.close();
         } catch (SQLException ex) {
             ex.printStackTrace();
