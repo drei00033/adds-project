@@ -9,6 +9,7 @@ import java.util.Vector;
 public class ReservationMonthFilterTable extends JPanel {
 
     private JTable reservationTable;
+    private JTable customerTable;
     private JComboBox<String> monthComboBox;
     private String currentMonthText = "January";
 
@@ -35,13 +36,12 @@ public class ReservationMonthFilterTable extends JPanel {
         });
         monthComboBox.setFont(new Font("Arial", Font.PLAIN, 16));
 
-        // Auto filter on month change
         monthComboBox.addActionListener(e -> {
             String selected = (String) monthComboBox.getSelectedItem();
             if (selected != null) {
-                String month = selected.substring(0, 2); // "03"
-                currentMonthText = selected.substring(5); // "March"
-                refreshTable(month);
+                String month = selected.substring(0, 2);
+                currentMonthText = selected.substring(5);
+                refreshTables(month);
             }
         });
 
@@ -55,59 +55,93 @@ public class ReservationMonthFilterTable extends JPanel {
         filterPanel.add(printButton);
         add(filterPanel, BorderLayout.SOUTH);
 
-        // Table setup
-        String[] columnNames = {
-            "Reservation ID", "Check-In", "Check-Out",
-            "Reservation Status", "Customer ID", "Package Code", "Payment ID"
-        };
-        reservationTable = new JTable(fetchReservationDataByMonth("01"), columnNames);
-        reservationTable.setRowHeight(25);
-        reservationTable.setFont(new Font("Arial", Font.PLAIN, 16));
-        reservationTable.setBackground(new Color(220, 220, 220));
-        reservationTable.setForeground(new Color(50, 50, 50));
-        reservationTable.getTableHeader().setBackground(new Color(75, 83, 32));
-        reservationTable.getTableHeader().setForeground(Color.WHITE);
-        reservationTable.setSelectionBackground(new Color(150, 200, 150));
-        reservationTable.setSelectionForeground(Color.BLACK);
+        // Split pane for both tables
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPane.setResizeWeight(0.5);
 
-        JScrollPane scrollPane = new JScrollPane(reservationTable);
-        add(scrollPane, BorderLayout.CENTER);
+        // Reservation Summary Table
+        String[] summaryCols = {"Month", "Year", "Total Customers", "Total Reservation Fees", "Total Amount Paid", "Total Income"};
+        reservationTable = new JTable(fetchReservationDataByMonth("01"), summaryCols);
+        styleTable(reservationTable);
+        splitPane.setTopComponent(new JScrollPane(reservationTable));
+
+        // Customer Details Table
+        String[] customerCols = {"Customer Name", "Email", "Contact No", "Reservation Period"};
+        customerTable = new JTable(fetchCustomerDataByMonth("01"), customerCols);
+        styleTable(customerTable);
+        splitPane.setBottomComponent(new JScrollPane(customerTable));
+
+        add(splitPane, BorderLayout.CENTER);
     }
 
-    private void refreshTable(String month) {
-        String[][] data = fetchReservationDataByMonth(month);
-        reservationTable.setModel(new javax.swing.table.DefaultTableModel(data, new String[]{
-            "Reservation ID", "Check-In", "Check-Out", "Reservation Status", "Customer ID", "Package Code", "Payment ID"
+    private void refreshTables(String month) {
+        // Refresh reservation summary
+        String[][] summaryData = fetchReservationDataByMonth(month);
+        reservationTable.setModel(new javax.swing.table.DefaultTableModel(summaryData, new String[]{
+            "Month", "Year", "Total Customers", "Total Reservation Fees",
+            "Total Amount Paid", "Total Income"
+        }));
+
+        // Refresh customer details
+        String[][] customerData = fetchCustomerDataByMonth(month);
+        customerTable.setModel(new javax.swing.table.DefaultTableModel(customerData, new String[]{
+            "Customer Name", "Email", "Contact No", "Reservation Period"
         }));
     }
 
     private String[][] fetchReservationDataByMonth(String month) {
         Vector<String[]> rows = new Vector<>();
         try (Connection conn = DriverManager.getConnection(
-                "jdbc:sqlserver://localhost:1433;databaseName=SYSTEM;encrypt=true;trustServerCertificate=true;integratedSecurity=true;"
-        )) {
-            String sql = "SELECT * FROM RESERVATION WHERE MONTH(CheckInDate) = ?";
+                "jdbc:sqlserver://localhost:1433;databaseName=SYSTEM;encrypt=true;trustServerCertificate=true;integratedSecurity=true;")) {
+
+            String sql = "SELECT * FROM MonthlyReservationReport WHERE Month = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, Integer.parseInt(month));
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
                 rows.add(new String[]{
-                    rs.getString("ReservationNo"),
-                    rs.getString("CheckInDate"),
-                    rs.getString("CheckOutDate"),
-                    rs.getString("ReservationStatus"),
-                    rs.getString("CustomerID"),
-                    rs.getString("PackageCode"),
-                    rs.getString("PaymentID")
+                    rs.getString("Month"),
+                    rs.getString("Year"),
+                    rs.getString("TotalCustomers"),
+                    rs.getString("TotalReservationFees"),
+                    rs.getString("TotalAmountPaid"),
+                    rs.getString("TotalIncome")
                 });
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
+        return rows.toArray(new String[0][]);
+    }
 
-        String[][] data = new String[rows.size()][7];
-        return rows.toArray(data);
+    private String[][] fetchCustomerDataByMonth(String month) {
+        Vector<String[]> rows = new Vector<>();
+        try (Connection conn = DriverManager.getConnection(
+                "jdbc:sqlserver://localhost:1433;databaseName=SYSTEM;encrypt=true;trustServerCertificate=true;integratedSecurity=true;")) {
+
+            String sql = """
+                SELECT * FROM CustomerTable
+                WHERE MONTH(
+                    CAST(SUBSTRING(ReservationPeriod, CHARINDEX(':', ReservationPeriod) + 2, 10) AS DATE)
+                ) = ?
+            """;
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, Integer.parseInt(month));
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                rows.add(new String[]{
+                    rs.getString("CustomerName"),
+                    rs.getString("Email"),
+                    rs.getString("ContactNo"),
+                    rs.getString("ReservationPeriod")
+                });
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return rows.toArray(new String[0][]);
     }
 
     private void printReport() {
@@ -123,15 +157,28 @@ public class ReservationMonthFilterTable extends JPanel {
             } else {
                 JOptionPane.showMessageDialog(this, "Print was cancelled.");
             }
-
         } catch (PrinterException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Failed to print report: " + e.getMessage());
         }
     }
 
-    // Getter for printing externally (if needed)
+    private void styleTable(JTable table) {
+        table.setRowHeight(25);
+        table.setFont(new Font("Arial", Font.PLAIN, 16));
+        table.setBackground(new Color(220, 220, 220));
+        table.setForeground(new Color(50, 50, 50));
+        table.getTableHeader().setBackground(new Color(75, 83, 32));
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.setSelectionBackground(new Color(150, 200, 150));
+        table.setSelectionForeground(Color.BLACK);
+    }
+
     public JTable getReservationTable() {
         return reservationTable;
+    }
+
+    public JTable getCustomerTable() {
+        return customerTable;
     }
 }

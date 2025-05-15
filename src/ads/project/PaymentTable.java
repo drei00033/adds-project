@@ -1,6 +1,5 @@
 package ads.project;
 
-import extralng.PaymentCRUD;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.*;

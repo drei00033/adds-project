@@ -9,16 +9,15 @@ public class CustomerTable extends JPanel {
     public CustomerTable() {
         setLayout(new BorderLayout());
 
-        //Header Panel 
+        // Header Panel
         JPanel headerPanel = new JPanel();
-        JLabel headerLabel = new JLabel("Customer Records", SwingConstants.CENTER);
+        JLabel headerLabel = new JLabel("Customer Reservations", SwingConstants.CENTER);
         headerLabel.setFont(new Font("Arial", Font.BOLD, 28));
         headerLabel.setForeground(new Color(75, 83, 32));
         headerPanel.add(headerLabel);
         add(headerPanel, BorderLayout.NORTH);
-        
-        
-        //Main panel 
+
+        // Main panel
         JPanel contentPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(15, 15, 15, 15);
@@ -28,8 +27,8 @@ public class CustomerTable extends JPanel {
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
 
-        //Table setup
-        String[] columnNames = {"Customer ID", "Last Name", "First Name", "Middle Name", "Contact No", "Email"};
+        // Table setup
+        String[] columnNames = {"Customer Name", "Email", "Contact No", "Reservation Period"};
         String[][] data = fetchCustomerData();
         JTable customerTable = new JTable(data, columnNames);
         customerTable.setRowHeight(25);
@@ -41,35 +40,34 @@ public class CustomerTable extends JPanel {
         customerTable.setSelectionBackground(new Color(150, 200, 150));
         customerTable.setSelectionForeground(Color.BLACK);
 
-        //Positioning
+        // Positioning
         JScrollPane scrollPane = new JScrollPane(customerTable);
         contentPanel.add(scrollPane, gbc);
-        
+
         add(contentPanel, BorderLayout.CENTER);
     }
 
-    //Fetch data from the database
+    // Fetch data from the database
     private String[][] fetchCustomerData() {
-        String[][] data = new String[0][6];
+        String[][] data = new String[0][4];
         try {
-            Connection conn = DriverManager.getConnection("jdbc:sqlserver://localhost:1433;databaseName=SYSTEM;encrypt=true;trustServerCertificate=true;integratedSecurity=true;");
+            Connection conn = DriverManager.getConnection(
+                "jdbc:sqlserver://localhost:1433;databaseName=SYSTEM;encrypt=true;trustServerCertificate=true;integratedSecurity=true;");
             Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ResultSet rs = stmt.executeQuery("SELECT * FROM CUSTOMER");
+            ResultSet rs = stmt.executeQuery("SELECT * FROM CustomerTable");
 
             rs.last();
             int rowCount = rs.getRow();
             rs.beforeFirst();
 
-            data = new String[rowCount][6];
+            data = new String[rowCount][4];
             int i = 0;
 
             while (rs.next()) {
-                data[i][0] = rs.getString("CustomerID");   
-                data[i][1] = rs.getString("LastName");
-                data[i][2] = rs.getString("FirstName");
-                data[i][3] = rs.getString("MiddleName");
-                data[i][4] = rs.getString("ContactNo");
-                data[i][5] = rs.getString("Email");
+                data[i][0] = rs.getString("CustomerName");
+                data[i][1] = rs.getString("Email");
+                data[i][2] = rs.getString("ContactNo");
+                data[i][3] = rs.getString("ReservationPeriod");
                 i++;
             }
             conn.close();
@@ -79,3 +77,4 @@ public class CustomerTable extends JPanel {
         return data;
     }
 }
+
