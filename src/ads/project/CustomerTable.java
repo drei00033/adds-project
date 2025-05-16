@@ -20,7 +20,7 @@ public class CustomerTable extends JPanel {
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
 
         // Header Label
-        JLabel headerLabel = new JLabel("Customer Reservations");
+        JLabel headerLabel = new JLabel("Customer Resecords");
         headerLabel.setFont(new Font("Arial", Font.BOLD, 28));
         headerLabel.setForeground(new Color(75, 83, 32));
         headerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
